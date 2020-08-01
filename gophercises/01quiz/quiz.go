@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
+	"io"
 	"log"
-	// "encoding/csv"
-	// "strings"
+	"encoding/csv"
+	"strings"
 )
 
 
@@ -39,12 +40,16 @@ func main () {
 	s := string(b)
 	fmt.Println(s)
 
-	// r := csv.NewReader(strings.NewReader(f))
+	lines := csv.NewReader(strings.NewReader(s))
 
-	// for {
-	// 	record, err := r.Read()
-	// 	fmt.Println(record)
-	// }
+
+	for {
+		record, err := lines.Read()
+		if err == io.EOF {
+			break
+		}
+		fmt.Println(record)
+	}
 
 	args := os.Args[1:]
 	fmt.Println(args)
