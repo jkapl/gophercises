@@ -4,54 +4,76 @@ import (
 	"fmt"
 	"os"
 	"io"
+	"bufio"
 	"log"
 	"encoding/csv"
 	"strings"
+	"strconv"
 )
+
+func readFile (name string) *csv.Reader {
+	f, err := os.Open(name)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fileInfo, err := os.Lstat(name)  // get length in bytes
+	if err != nil {
+		log.Fatal(err)
+	}
+	
+	b := make([]byte, fileInfo.Size()) // allocate byte array
+
+	f.Read(b) // read file into byte arrray
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	
+	s := string(b) //convert to string
+
+	return csv.NewReader(strings.NewReader(s))
+}
+
+func ask (question string) {
+	fmt.Printf("%v=\n", question)
+}
 
 
 
 func main () {
 
-	// open a file
-	f, err := os.Open("problems.csv")
-	if err != nil {
-		log.Fatal(err)
+	var count int
+	filename := "problems.csv"
+
+	args := os.Args[1:]
+	if args[0] == "-f" {
+		filename = args[1]
 	}
 
-	// get length in bytes
-	fileInfo, err := os.Lstat("problems.csv")
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("size: ", fileInfo.Size())
+	lines := readFile(filename)
 
-	// allocate byte array
-	b := make([]byte, fileInfo.Size())
-
-	// read file into byte arrray
-	r, err := f.Read(b)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(r)
-
-	//convert to string
-	s := string(b)
-	fmt.Println(s)
-
-	lines := csv.NewReader(strings.NewReader(s))
-
+	reader := bufio.NewReader(os.Stdin)
 
 	for {
 		record, err := lines.Read()
 		if err == io.EOF {
 			break
 		}
-		fmt.Println(record)
+		// fmt.Printf("%q/n", strings.Split(fmt.Printf("%q", record), " "))
+		question := record[0]
+		ask(question)
+		clianswer, _ := reader.ReadString('\n')
+		answer := strings.TrimSuffix(clianswer, "\n")
+		intUserAnswer, _ := strconv.Atoi(answer)
+		intAnswer, _ := strconv.Atoi(record[1])
+		fmt.Printf("%v, %v\n", answer, intAnswer)
+		if intUserAnswer == intAnswer {
+			count++
+		}
+		// answer := record[1]
 	}
 
-	args := os.Args[1:]
-	fmt.Println(args)
+	fmt.Printf("\nYou got %v right", count)
 
 }
