@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 	"os"
 	"io"
 	"bufio"
@@ -55,7 +56,18 @@ func main () {
 
 	reader := bufio.NewReader(os.Stdin)
 
+	fmt.Println("Press any key to start")
+	reader.ReadString('\n')
+	start := time.Now()
 	for {
+		t := time.Now()
+		elapsed := t.Sub(start)
+		// sec := time.ParseDuration(elapsed)
+		// fmt.Printf("%v", elapsed.Seconds())
+		if elapsed.Seconds() > 30 {
+			fmt.Println("Time's up!")
+			break
+		}
 		record, err := lines.Read()
 		if err == io.EOF {
 			break
